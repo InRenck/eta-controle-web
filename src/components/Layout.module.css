@@ -1,0 +1,60 @@
+.layoutContainer {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h3 {
+  color: var(--primary-orange);
+  margin-top: 0;
+  font-size: 1.8rem;
+}
+
+.navList {
+  flex-grow: 1; 
+}
+
+.navLink {
+  display: block;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
+  font-weight: 500;
+}
+
+.navLink:hover {
+  background-color: #fcebe3;
+  color: var(--primary-orange);
+}
+
+.navLink.active {
+  background-color: var(--primary-orange);
+  color: white;
+}
+
+.logoutButton {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: transparent;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.content {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto; 
+}
