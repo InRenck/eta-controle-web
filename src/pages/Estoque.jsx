@@ -1,15 +1,16 @@
+// src/pages/Estoque.jsx
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
+import styles from './Page.module.css'; 
 
 const Estoque = () => {
   const [estoque, setEstoque] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  
   const [nomeItem, setNomeItem] = useState('');
-  const [qtdItem, setQtdItem] = useState(0);
-  const [valorItem, setValorItem] = useState(0);
+  const [qtdItem, setQtdItem] = useState(''); 
+  const [valorItem, setValorItem] = useState(''); 
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "estoque"), (snapshot) => {
@@ -34,8 +35,8 @@ const Estoque = () => {
       await addDoc(collection(db, "estoque"), novoItem);
       
       setNomeItem('');
-      setQtdItem(0);
-      setValorItem(0);
+      setQtdItem('');
+      setValorItem('');
   }
 
   const handleDeleteItem = async (id) => {
@@ -48,43 +49,47 @@ const Estoque = () => {
 
   return (
     <div>
-      <h2>Controle de Estoque</h2>
+      <header className={styles.header}>
+        <h2 className={styles.title}>Controle de Estoque</h2>
+      </header>
 
-      {/* Formulário para adicionar novo item */}
-      <form onSubmit={handleAddItem}>
-          <h3>Adicionar Novo Item</h3>
-          <input type="text" value={nomeItem} onChange={e => setNomeItem(e.target.value)} placeholder="Nome do Item"/>
-          <input type="number" value={qtdItem} onChange={e => setQtdItem(e.target.value)} placeholder="Quantidade"/>
-          <input type="number" step="0.01" value={valorItem} onChange={e => setValorItem(e.target.value)} placeholder="Valor"/>
+      {/* Formulário com o novo estilo */}
+      <div className={styles.formContainer}>
+        <h3>Adicionar Novo Item</h3>
+        <form onSubmit={handleAddItem} className={styles.formFields}>
+          <input type="text" value={nomeItem} onChange={e => setNomeItem(e.target.value)} placeholder="Nome do Item" required/>
+          <input type="number" value={qtdItem} onChange={e => setQtdItem(e.target.value)} placeholder="Quantidade" required/>
+          <input type="number" step="0.01" value={valorItem} onChange={e => setValorItem(e.target.value)} placeholder="Valor" required/>
           <button type="submit">Salvar Item</button>
-      </form>
+        </form>
+      </div>
       
-      <hr />
-
-      {/* Tabela com a lista de itens */}
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Quantidade</th>
-            <th>Valor</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {estoque.map(item => (
-            <tr key={item.id}>
-              <td>{item.nome}</td>
-              <td>{item.estoque}</td>
-              <td>R$ {item.valor.toFixed(2)}</td>
-              <td>
-                  <button onClick={() => handleDeleteItem(item.id)}>Excluir</button>
-                  {/* Botão de editar pode ser adicionado aqui */}
-              </td>
+      {/* Tabela com o novo estilo */}
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Quantidade</th>
+              <th>Valor</th>
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {estoque.map(item => (
+              <tr key={item.id}>
+                <td>{item.nome}</td>
+                <td>{item.estoque}</td>
+                <td>R$ {item.valor.toFixed(2)}</td>
+                <td className={styles.actions}>
+                  <button onClick={() => handleDeleteItem(item.id)}>Excluir</button>
+                  {/* Você pode adicionar um botão de Editar aqui depois */}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

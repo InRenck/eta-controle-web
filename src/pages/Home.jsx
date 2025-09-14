@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, where } from 'firebase/firestore';
 import { db } from '../firebase';
+import styles from './Home.module.css';
 
 const Home = () => {
   const [valorVendidoDia, setValorVendidoDia] = useState(0);
@@ -50,32 +51,40 @@ const Home = () => {
     };
   }, []);
 
-  if (loading) return <p>A carregar visão geral...</p>;
+  if (loading) return <p>Carregando visão geral...</p>;
 
   return (
     <div>
-      <h2>Visão Geral do Dia</h2>
-      <div style={{ display: 'flex', gap: '2rem' }}>
-        <div style={{ border: '1px solid #ccc', padding: '1rem' }}>
+      <header className={styles.header}>
+        <h2 className={styles.title}>Visão Geral do Dia</h2>
+      </header>
+
+      <div className={styles.widgetsContainer}>
+        <div className={styles.card}>
           <h3>Vendas no Dia</h3>
-          <p style={{ color: 'green', fontSize: '24px' }}>R$ {valorVendidoDia.toFixed(2)}</p>
+          <p className={styles.salesValue}>R$ {valorVendidoDia.toFixed(2)}</p>
         </div>
-        <div style={{ border: '1px solid #ccc', padding: '1rem', background: '#F16D26', color: 'white' }}>
+        <div className={styles.card}>
           <h3>Alerta de Estoque</h3>
-          <p style={{ fontSize: '24px' }}>{estoqueBaixoCount} itens</p>
+          <p className={styles.stockValue}>{estoqueBaixoCount} itens</p>
         </div>
       </div>
-      
-      <div style={{ marginTop: '2rem' }}>
-        <h3>Pedidos em Andamento</h3>
+
+      <div className={styles.pedidosSection}>
+        <h2 className={styles.title}>Pedidos em Andamento</h2>
         {pedidosPendentes.length > 0 ? (
-            <ul>
+            <ul className={styles.pedidosList}>
                 {pedidosPendentes.map(pedido => (
-                    <li key={pedido.id}>{pedido.cliente} - {pedido.total}</li>
+                    <li key={pedido.id} className={styles.pedidoItem}>
+                      <span>{pedido.cliente}</span>
+                      <strong>{pedido.total}</strong>
+                    </li>
                 ))}
             </ul>
         ) : (
-            <p>Nenhum pedido em andamento.</p>
+            <div className={styles.emptyState}>
+              <p>Nenhum pedido em andamento no momento. Tudo em dia!</p>
+            </div>
         )}
       </div>
     </div>

@@ -1,6 +1,9 @@
+// src/pages/Pedidos.jsx
 import React, { useState, useEffect } from 'react';
-import { collection, onSnapshot, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, Timestamp, query, where, getDocs, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
+import styles from './Pedidos.module.css';
+import globalStyles from './Page.module.css';
 
 const Pedidos = () => {
   const [produtosCardapio, setProdutosCardapio] = useState([]);
@@ -48,55 +51,104 @@ const Pedidos = () => {
 
     try {
       await addDoc(collection(db, "vendas"), novaVenda);
+
+      // --- LÓGICA CORRIGIDA E FUNCIONAL PARA DAR BAIXA NO ESTOQUE ---
+      const contagemDeProdutos = itensPedido.reduce((acc, produto) => {
+        // Assume que um produto sem ingredientes debita o estoque de um item com o mesmo nome
+        if (!produto.ingredientes || produto.ingredientes.length === 0) {
+          acc[produto.nome] = {
+            quantidade: (acc[produto.nome]?.quantidade || 0) + 1,
+            usaIngredientes: false
+          };
+        } else {
+        // Se o produto usa ingredientes, debita cada ingrediente
+          produto.ingredientes.forEach(ingrediente => {
+            acc[ingrediente.nome] = {
+              quantidade: (acc[ingrediente.nome]?.quantidade || 0) + ingrediente.quantidadeUsada,
+              usaIngredientes: true
+            };
+          });
+        }
+        return acc;
+      }, {});
+      
+      for (const nomeItem in contagemDeProdutos) {
+        const { quantidade } = contagemDeProdutos[nomeItem];
+        const q = query(collection(db, "estoque"), where("nome", "==", nomeItem));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const estoqueDoc = querySnapshot.docs[0];
+          const estoqueRef = doc(db, "estoque", estoqueDoc.id);
+          // Usa a função 'increment' do Firebase para uma atualização segura
+          await updateDoc(estoqueRef, {
+            estoque: increment(-quantidade)
+          });
+          console.log(`Baixa de ${quantidade} no estoque de ${nomeItem}`);
+        } else {
+          console.warn(`Item de estoque "${nomeItem}" não encontrado para dar baixa.`);
+        }
+      }
+      // --- FIM DA LÓGICA DE ESTOQUE ---
+
       alert("Pedido salvo com sucesso!");
-      // Limpar formulário
       setCliente('');
       setItensPedido([]);
+
     } catch (error) {
       alert("Erro ao salvar o pedido.");
-      console.error("Erro: ", error);
+      console.error("Erro ao salvar pedido ou dar baixa no estoque: ", error);
     }
   };
 
   return (
     <div>
-      <h2>Criar Novo Pedido</h2>
-      
-      <div>
-        <h3>Cliente</h3>
-        <input 
-          type="text" 
-          value={cliente} 
-          onChange={(e) => setCliente(e.target.value)}
-          placeholder="Nome do Cliente"
-        />
-      </div>
+      <header className={globalStyles.header}>
+        <h2 className={globalStyles.title}>Criar Novo Pedido</h2>
+      </header>
 
-      <div>
-        <h3>Itens do Cardápio</h3>
-        {produtosCardapio.map(produto => (
-          <button key={produto.id} onClick={() => handleAddProduto(produto)}>
-            Adicionar {produto.nome} (R$ {produto.preco.toFixed(2)})
+      <div className={styles.pageContainer}>
+        <main>
+          <div className={styles.formSection} style={{marginBottom: '1rem'}}>
+            <h3>1. Informações do Cliente</h3>
+            <input 
+              type="text" 
+              value={cliente} 
+              onChange={(e) => setCliente(e.target.value)}
+              placeholder="Nome do Cliente"
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formSection}>
+            <h3>2. Adicionar Itens do Cardápio</h3>
+            <div className={styles.cardapioGrid}>
+                {produtosCardapio.map(produto => (
+                <button key={produto.id} onClick={() => handleAddProduto(produto)} className={styles.produtoButton}>
+                    <strong>{produto.nome}</strong><br/>
+                    <span>R$ {produto.preco.toFixed(2)}</span>
+                </button>
+                ))}
+            </div>
+          </div>
+        </main>
+
+        <aside className={`${styles.formSection} ${styles.pedidoResumo}`}>
+          <h3>3. Resumo do Pedido</h3>
+          <ul className={styles.itensList}>
+            {itensPedido.length > 0 ? itensPedido.map((item, index) => (
+              <li key={index} className={styles.item}>
+                <span>{item.nome}</span>
+                <button onClick={() => handleRemoveProduto(index)} style={{background: 'none', border: 'none', color: 'red', cursor: 'pointer'}}>X</button>
+              </li>
+            )) : <p>Nenhum item adicionado.</p>}
+          </ul>
+          <p className={styles.total}>Total: R$ {total.toFixed(2)}</p>
+          <button onClick={handleSalvarPedido} className={styles.salvarButton}>
+            Salvar Pedido
           </button>
-        ))}
+        </aside>
       </div>
-
-      <div>
-        <h3>Itens no Pedido</h3>
-        <ul>
-          {itensPedido.map((item, index) => (
-            <li key={index}>
-              {item.nome} - R$ {item.preco.toFixed(2)}
-              <button onClick={() => handleRemoveProduto(index)}>Remover</button>
-            </li>
-          ))}
-        </ul>
-        <h4>Total: R$ {total.toFixed(2)}</h4>
-      </div>
-
-      <button onClick={handleSalvarPedido} style={{ marginTop: '20px', padding: '10px 20px' }}>
-        Salvar Pedido
-      </button>
     </div>
   );
 };

@@ -1,0 +1,87 @@
+.header {
+    margin-bottom: 2rem;
+}
+
+.title {
+    color: var(--text-dark);
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.formContainer {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.formContainer h3 {
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.formFields {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.formFields input, .formFields select {
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.formFields button {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--primary-orange);
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.tableContainer {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.table th {
+    background-color: #fafafa;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.actions button {
+    margin-right: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: transparent;
+}
+
+.actions button:hover {
+    background-color: #f5f5f5;
+}

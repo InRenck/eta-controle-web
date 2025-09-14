@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import styles from './Page.module.css';
 
 const Vendas = () => {
   const [vendas, setVendas] = useState([]);
@@ -27,33 +28,37 @@ const Vendas = () => {
 
   return (
     <div>
-      <h2>Histórico de Vendas</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Cliente</th>
-            <th>Data</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {vendas.map(venda => (
-            <tr key={venda.id}>
-              <td>{venda.cliente}</td>
-              <td>{venda.data} às {venda.hora}</td>
-              <td>{venda.total}</td>
-              <td>{venda.status}</td>
-              <td>
-                <button onClick={() => handleChangeStatus(venda.id, venda.status)}>
-                  Alterar Status
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <header className={styles.header}>
+            <h2 className={styles.title}>Histórico de Vendas</h2>
+        </header>
+        <div className={styles.tableContainer}>
+            <table className={styles.table}>
+                <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Data</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                {vendas.map(venda => (
+                    <tr key={venda.id}>
+                    <td>{venda.cliente}</td>
+                    <td>{venda.data} às {venda.hora}</td>
+                    <td>{venda.total}</td>
+                    <td style={{ fontWeight: 'bold' }}>{venda.status}</td>
+                    <td className={styles.actions}>
+                        <button onClick={() => handleChangeStatus(venda.id, venda.status)}>
+                        Alterar Status
+                        </button>
+                    </td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
+        </div>
     </div>
   );
 };
